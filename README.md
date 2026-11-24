@@ -1,127 +1,155 @@
-# Real-Time Drowsiness Detection Using Eye Aspect Ratio (EAR) and MediaPipe
+# 😴 Real-Time Drowsiness Detection (EAR + MediaPipe)
 
-Sistem deteksi kantuk real-time berbasis kamera yang menggunakan **MediaPipe Face Mesh**, **Eye Aspect Ratio (EAR)**, dan **OpenCV** untuk mendeteksi kondisi mata tertutup terlalu lama.  
-Ketika kantuk terdeteksi, sistem akan memicu **alarm suara otomatis** menggunakan *simpleaudio*.
+A real-time camera-based drowsiness detection system using **MediaPipe Face Mesh**, **Eye Aspect Ratio (EAR)**, and **OpenCV**. Automatically triggers an audio alarm when prolonged eye closure is detected.
 
----
-
-## ✨ Fitur Utama
-- Deteksi wajah dan landmark mata menggunakan **MediaPipe Face Mesh**
-- Perhitungan **EAR (Eye Aspect Ratio)** untuk menentukan keadaan mengantuk
-- Real-time menggunakan kamera laptop atau kamera HP (DroidCam)
-- Tidak membutuhkan dataset (tanpa training)
-- Alarm otomatis ketika kantuk terdeteksi
-- Ringan dan dapat berjalan di laptop berspesifikasi rendah
+![Python](https://img.shields.io/badge/python-3.x-blue?style=flat-square)
+![OpenCV](https://img.shields.io/badge/OpenCV-4.x-green?style=flat-square)
+![MediaPipe](https://img.shields.io/badge/MediaPipe-Face%20Mesh-orange?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)
 
 ---
 
-## 📌 Teknologi yang Digunakan
-- Python 3.x  
-- OpenCV  
-- MediaPipe  
-- NumPy  
-- simpleaudio  
+## ✨ Features
+
+- Real-time face & eye landmark detection via **MediaPipe Face Mesh** (468 landmarks)
+- **EAR (Eye Aspect Ratio)** calculation to detect drowsy state
+- Works with laptop webcam or phone camera (DroidCam)
+- **No dataset or model training required**
+- Automatic audio alarm when drowsiness is detected
+- Lightweight — runs on low-spec laptops
 
 ---
 
-## 📁 Struktur Folder
+## 🔌 Tech Stack
 
+| Library | Purpose |
+|---------|---------|
+| Python 3.x | Core language |
+| OpenCV | Camera capture & frame rendering |
+| MediaPipe | Face mesh landmark detection |
+| NumPy | EAR computation |
+| simpleaudio | Audio alarm playback |
+
+---
+
+## 📁 Project Structure
+
+```
 Real-Time-Drowsiness-Detection/
-│── venv/ → Virtual environment
-│── drowsiness_detector.py → Program utama deteksi kantuk
-│── alarm.wav → Suara alarm (dibuat otomatis jika belum ada)
-│── README.md → Dokumentasi proyek
+├── drowsiness_detector.py   # Main detection script
+├── alarm.wav                # Alarm audio (auto-generated if missing)
+└── README.md
+```
 
 ---
 
-## 📦 Instalasi & Persiapan
+## ⚙️ How It Works
+
+```
+Camera Frame
+     ↓
+MediaPipe Face Mesh (468 landmarks)
+     ↓
+Extract 6 eye landmarks (left & right)
+     ↓
+Calculate EAR per frame
+     ↓
+EAR < threshold for N consecutive frames?
+     ↓ Yes
+Trigger alarm (simpleaudio)
+```
+
+**EAR Formula:**
+
+$$EAR = \frac{||p_2 - p_6|| + ||p_3 - p_5||}{2 \cdot ||p_1 - p_4||}$$
+
+When EAR drops below `0.21` for `25+` consecutive frames → **drowsiness detected**.
+
+---
+
+## 📦 Installation
 
 ### 1️⃣ Clone Repository
+
 ```bash
-git clone https://github.com/USERNAME/Real-Time-Drowsiness-Detection.git
-cd Real-Time-Drowsiness-Detection
+git clone https://github.com/PutYourBae/Real-Time-Drowsiness-Detection-Using-EAR-and-OpenCV.git
+cd Real-Time-Drowsiness-Detection-Using-EAR-and-OpenCV
 ```
-### 2️⃣ Buat Virtual Environment
+
+### 2️⃣ Create Virtual Environment
+
 ```bash
 python -m venv venv
 ```
-### 3️⃣ Aktifkan Virtual Environment
-```bash
-Windows
-venv\Scripts\activate\
 
-Mac / Linux
+### 3️⃣ Activate Virtual Environment
+
+```bash
+# Windows
+venv\Scripts\activate
+
+# Mac / Linux
 source venv/bin/activate
 ```
-### 4️⃣ Install Dependensi
+
+### 4️⃣ Install Dependencies
+
 ```bash
 pip install opencv-python mediapipe numpy simpleaudio
 ```
-### ▶️ Menjalankan Program
-Pastikan kamera aktif, lalu jalankan:
+
+---
+
+## ▶️ Run
+
+Make sure your camera is active, then:
+
 ```bash
 python drowsiness_detector.py
 ```
-Tekan Q untuk keluar dari program.
+
+Press **Q** to quit.
 
 ---
 
-🧠 Cara Kerja Program
+## 📸 Output
 
-1.Kamera menangkap wajah pengguna
+The program overlays real-time status on the camera feed:
 
-2.MediaPipe Face Mesh mendeteksi 468 titik landmark
+| Status | Condition |
+|--------|-----------|
+| **NORMAL** | EAR stable above 0.25 |
+| **DROWSY!** 🚨 | EAR below 0.20 for several frames |
 
-3.Program mengambil 6 landmark khusus untuk mata kiri & kanan
-
-4.EAR dihitung setiap frame
-
-5.Jika EAR < threshold selama beberapa frame → dianggap mengantuk
-
-6.Alarm berbunyi menggunakan simpleaudio
+Additional info displayed: `EAR Value: 0.xxx` and `Eye Closed Duration: x sec`
 
 ---
 
-📸 Output Program
+## ⚙️ Configuration (Optional)
 
-• Status yang tampil pada layar:
+Adjust thresholds directly in the script:
 
-• NORMAL (EAR stabil di > 0.25)
-
-• MENGANTUK! (EAR turun < 0.20 selama beberapa frame)
-
-• EAR Value: 0.xxx
-
-• Eye Closed Duration: x sec
-
----
-
-🎧 Alarm
-
-Program akan memutar file alarm.wav.
-Jika tidak ada, sistem otomatis membuat suara alarm sederhana.
-
----
-
-⚙️ Konfigurasi (Opsional)
-
-Ubah parameter pada kode:
-```bash
-EAR_THRESHOLD = 0.21     # Ambang batas mata tertutup
-CONSEC_FRAMES = 25       # Jumlah frame berturut-turut untuk dianggap kantuk
+```python
+EAR_THRESHOLD = 0.21   # Eye closure threshold
+CONSEC_FRAMES = 25     # Consecutive frames to trigger alarm
 ```
 
 ---
 
-📝 Lisensi
+## 🔊 Alarm
 
-Proyek ini bebas digunakan untuk tugas kuliah, penelitian, maupun pengembangan lebih lanjut.
+The program plays `alarm.wav`.  
+If the file is missing, it automatically generates a simple beep tone.
 
 ---
 
-👨‍💻 Pembuat
+## 📄 License
 
-Agustian Putra
+MIT License — free to use for academic, research, or personal projects.
+
+---
+
+## 👨‍💻 Author
+
+**Agustian Putra**  
 Machine Learning Course Project — 2025
-
----
